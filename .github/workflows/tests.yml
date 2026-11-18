@@ -1,0 +1,33 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: pdo_sqlite, pdo_pgsql
+          coverage: none
+      - name: Dépendances
+        run: composer install --no-interaction --no-progress --prefer-dist
+      - name: Environnement
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - name: PHPUnit
+        run: vendor/bin/phpunit
+
+  sauvegarde:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Contrat sauvegarde / restauration
+        run: bash tests/scripts/sauvegarde.test.sh

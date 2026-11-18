@@ -1,0 +1,17 @@
+# Le Dockerfile fait `COPY . .` : sans cette liste, le .env local (secrets),
+# le vendor de développement et les sauvegardes partaient dans l'image.
+.git
+.github
+.env
+.env.*
+!.env.example
+vendor
+node_modules
+backups
+tests
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+.phpunit.cache
+.phpunit.result.cache

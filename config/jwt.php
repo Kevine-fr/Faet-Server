@@ -1,5 +1,14 @@
 <?php
 
+$lireCle = static function (?string $chemin): ?string {
+    if ($chemin === null || $chemin === '') {
+        return null;
+    }
+    $fichier = base_path($chemin);
+
+    return is_file($fichier) ? (string) file_get_contents($fichier) : null;
+};
+
 /*
  * This file is part of jwt-auth.
  *
@@ -57,10 +66,10 @@ return [
         |
         */
 
-        'public' => file_get_contents(base_path(env('JWT_PUBLIC_KEY'))),
-
-        'private' => file_get_contents(base_path(env('JWT_PRIVATE_KEY'))),
-
+        // Clé absente ou non renseignée -> null. `base_path('')` désignait le
+        // dossier du projet : file_get_contents levait une notice à chaque
+        // chargement de la config (tests compris) et rendait `false`.
+        'public' => $lireCle(env('JWT_PUBLIC_KEY')),
 
         /*
         |--------------------------------------------------------------------------
@@ -73,7 +82,7 @@ return [
         |
         */
 
-        'private' => file_get_contents(base_path(env('JWT_PRIVATE_KEY'))),
+        'private' => $lireCle(env('JWT_PRIVATE_KEY')),
 
         /*
         |--------------------------------------------------------------------------

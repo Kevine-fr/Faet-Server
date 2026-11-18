@@ -50,4 +50,9 @@ RUN chmod +x /entrypoint.sh
 
 EXPOSE 8000
 
+# /up est la route de santé de Laravel ; Docker (et la sonde blackbox du dépôt
+# Infrastructure) voient ainsi un conteneur dont PHP-FPM est tombé.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -fsS http://127.0.0.1:8000/up > /dev/null || exit 1
+
 CMD ["/entrypoint.sh"]
