@@ -60,3 +60,18 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 "# Faet-Server" 
+
+---
+
+## Faet sur le VPS
+
+- **Conteneur** : `faet-api` (nginx + PHP-FPM, port 8000), réseau Docker `web`.
+- **Santé** : `GET /up` (aussi le `HEALTHCHECK` de l'image).
+- **Métriques** : `GET /metrics` — `http_requests_total` et
+  `http_request_duration_seconds` {method, route, status_code}, lues par le
+  Prometheus du dépôt Infrastructure (job `faet-api`).
+- **Sauvegarde** : `./scripts/backup.sh` (base PostgreSQL + `storage/app`, un
+  seul fichier, chemin en dernière ligne) ; `./scripts/restore.sh <fichier>`.
+  L'envoi automatique sur MinIO est fait par le dépôt Infrastructure.
+- **Tests** : `vendor/bin/phpunit` et `bash tests/scripts/sauvegarde.test.sh`.
+- Conventions de travail : `CLAUDE.md`.
