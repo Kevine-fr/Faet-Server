@@ -1,0 +1,15 @@
+# Fiche lue par le portfolio (Portfolio-Server, synchronisation GitHub).
+# Elle prime sur le README : titre, résumé et technologies affichés.
+title: Faet
+subtitle: API de marketplace multi-vendeurs
+description: 'API Laravel d''une place de marché : boutiques de vendeurs, catalogue et variantes de produits,
+  promotions et codes promo, panier, commandes, paiements et factures, avec connexion Google et JWT.'
+techStack:
+- PHP
+- Laravel
+- PostgreSQL
+- JWT
+- Docker
+- Nginx
+status: published
+year: 2026
