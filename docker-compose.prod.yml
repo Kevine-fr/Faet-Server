@@ -1,0 +1,50 @@
+name: faet
+
+# Faet tournait sans compose (lancé à la main) : rien ne disait sur quel réseau,
+# sous quel nom ni avec quel .env, et la sonde du VPS le voyait « en panne »
+# sans moyen de le relancer à l'identique. Ce fichier est cette commande.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Le .env n'est plus copié dans l'image (.dockerignore : il emportait les
+# secrets dans chaque couche) : il est lu ici, au lancement.
+
+x-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: faet-api:latest
+    # Nom lu par Prometheus (faet-api:8000), la sonde (/up) et le nginx du
+    # dépôt Infrastructure : ne pas le changer sans eux.
+    container_name: faet-api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+    expose:
+      - "8000"
+    volumes:
+      # Fichiers téléversés (sauvegardés par scripts/backup.sh) et clés JWT
+      # (JWT_PRIVATE_KEY / JWT_PUBLIC_KEY, chemins relatifs au projet).
+      - ./storage/app:/var/www/storage/app
+      - ./storage/oauth:/var/www/storage/oauth:ro
+    # Plafonds conseillés par CAPACITY.md (dépôt Infrastructure).
+    mem_limit: 512m
+    cpus: 1
+    cpu_shares: 1024
+    logging: *logging
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
+    name: web
