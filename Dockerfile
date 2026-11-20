@@ -1,4 +1,11 @@
-FROM php:8.2-fpm-alpine
+# Version figée, jamais « 8.2-fpm-alpine » : une étiquette flottante déjà
+# présente sur le VPS n'est pas retéléchargée au build, et l'image gardait
+# les failles corrigées le 19/11/2026 (PHP 8.2.36 : contrebande de requêtes
+# PHP-FPM CVE-2026-129289, injection d'objets par la session
+# CVE-2026-115560…). Alpine 3.24, pour le nginx du même conteneur : son
+# paquet 1.30.7 corrige NGINX2Root (CVE-2026-123007).
+# tests/Unit/ImageDockerTest.php refuse une version antérieure.
+FROM php:8.2.36-fpm-alpine3.24
 
 # Installer dépendances système minimales
 RUN apk --no-cache add \
@@ -22,6 +29,10 @@ RUN sed -i 's/;pm.max_children = .*/pm.max_children = 6/' /usr/local/etc/php-fpm
     && sed -i 's/;pm.min_spare_servers = .*/pm.min_spare_servers = 2/' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;pm.max_spare_servers = .*/pm.max_spare_servers = 3/' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/;pm.max_requests = .*/pm.max_requests = 300/' /usr/local/etc/php-fpm.d/www.conf
+
+# Durcissement de PHP et de PHP-FPM (voir les deux fichiers).
+COPY ./docker/php-securite.ini /usr/local/etc/php/conf.d/zz-securite.ini
+COPY ./docker/php-fpm-securite.conf /usr/local/etc/php-fpm.d/zzz-securite.conf
 
 # Ajouter configuration OPcache
 #COPY ./php.ini /usr/local/etc/php/conf.d/opcache.ini
